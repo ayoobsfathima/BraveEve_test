@@ -9,7 +9,7 @@ import base64
 import time
 import sqlite3
 from datetime import datetime
-DEBUG_MODE = False 
+DEBUG_MODE = True 
 
 def init_db():
 
