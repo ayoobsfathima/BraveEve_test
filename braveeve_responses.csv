@@ -1,0 +1,35 @@
+session_id,timestamp,name,distress_score,question_number,category,problem_item,answer,response_source,free_text,completed_at,session_duration_seconds,session_duration_minutes
+20260711_90253c,2026-07-11 11:25:28.063905,luxky,3,1,Physical,Pain,YES,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:25:32.615259,luxky,3,2,Physical,Sleep,NO,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:25:36.453434,luxky,3,3,Physical,Fatigue,YES,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:25:41.167275,luxky,3,4,Physical,Tobacco use,NO,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:25:45.557662,luxky,3,5,Physical,Substance use,YES,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:26:42.716383,luxky,3,6,Physical,Memory/Concentration,YES,NLP,yes i keep facing regularly at my workspace,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:26:53.874323,luxky,3,7,Physical,Sexual health,NO,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:26:59.804116,luxky,3,8,Physical,Changes in eating,YES,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:28:12.876213,luxky,3,9,Physical,Loss or change of physical abilities,YES,NLP,"no only when im too tired, i feel little stress",2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:28:19.985201,luxky,3,10,Emotional,Worry/Anxiety,YES,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:28:25.715380,luxky,3,11,Emotional,Sadness/Depression,NO,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:28:43.168337,luxky,3,12,Emotional,Loss of interest or enjoyment,NO,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:28:56.566231,luxky,3,13,Emotional,Grief or loss,YES,BUTTON,,2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:29:54.890702,luxky,3,14,Emotional,Fear,YES,NLP,"i do fear about my future ,  but its something that is not in my hands",2026-07-11 11:30:56,412.35,6.87
+20260711_90253c,2026-07-11 11:30:34.311506,luxky,3,15,Emotional,Loneliness,NO,NLP,"my friends , family, everyone takes good care of me all the time",2026-07-11 11:30:56,412.35,6.87
+20260711_fcf299,2026-07-11 11:34:17.910566,sherly,5,1,Physical,Pain,YES,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:35:42.346068,sherly,5,2,Physical,Sleep,YES,NLP,"its both the ways, i stay up late because i am not able to sleep. and peace no i am not able to.",2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:35:57.540945,sherly,5,3,Physical,Fatigue,YES,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:36:08.019725,sherly,5,4,Physical,Tobacco use,NO,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:36:51.748145,sherly,5,5,Physical,Substance use,YES,NLP,not that i really want to but at time i feel like drinking one.,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:37:56.058251,sherly,5,6,Physical,Memory/Concentration,NO,NLP,i do forget things very easily and i dont know why ,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:38:17.986069,sherly,5,7,Physical,Sexual health,NO,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:39:04.998419,sherly,5,8,Physical,Changes in eating,YES,NLP,i am hungry even after eating a solid amount of that i consume everyday. ,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:39:14.943992,sherly,5,9,Physical,Loss or change of physical abilities,NO,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:39:33.556131,sherly,5,10,Emotional,Worry/Anxiety,YES,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:40:15.575852,sherly,5,11,Emotional,Sadness/Depression,YES,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:40:49.204704,sherly,5,12,Emotional,Loss of interest or enjoyment,YES,NLP,i dont have an answer for that ,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:41:04.637593,sherly,5,13,Emotional,Grief or loss,YES,NLP,sometimes.,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:41:25.906828,sherly,5,14,Emotional,Fear,YES,NLP,some things.,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:41:35.651620,sherly,5,15,Emotional,Loneliness,NO,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:41:45.414346,sherly,5,16,Emotional,Anger,NO,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:41:56.698664,sherly,5,17,Emotional,Changes in appearance,NO,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:42:10.226964,sherly,5,18,Emotional,Feelings of worthlessness or being a burden,NO,BUTTON,,2026-07-11 11:42:45,613.16,10.22
+20260711_fcf299,2026-07-11 11:42:27.406421,sherly,5,19,Social,Relationship with Spouse/Partner,NO,NLP,i am single ,2026-07-11 11:42:45,613.16,10.22

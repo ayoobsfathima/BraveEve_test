@@ -1,0 +1,28 @@
+﻿Key,Message
+ASK_NAME,It's nice to meet you today. What would you like me to call you?
+ASK_DAY_FEELING,"Before we continue, how are you feeling today?"
+DAY_FEELING_GOOD,I'm glad to hear that. Thank you for sharing.
+DAY_FEELING_OKAY,Thank you for telling me. I appreciate you sharing that with me.
+DAY_FEELING_STRUGGLE,"Thank you for being honest. Some days can feel harder than others, and that's okay."
+ASK_DISTRESS_AWARENESS,"Have you heard the word ""distress"" before?"
+EXPLAIN_DISTRESS_1,"Sometimes cancer and treatment can affect the body, mind, emotions, daily life, relationships, or even faith. We call these feelings distress."
+EXPLAIN_DISTRESS_2,"Sometimes cancer and treatment can affect the body, mind, emotions, daily life, relationships, or even faith. We call these feelings distress."
+DISTRESS_UNDERSTOOD,Did you understand the meaning?
+DISTRESS_REEXPLAIN,"Another way to think about distress is this: if something is making your days feel harder, more tiring, more worrying, or less enjoyable than before, that can be distress."
+DISTRESS_REEXPLAIN_CHECK,Did you understand now?
+DISTRESS_NOT_UNDERSTOOD_HELP,"That's okay. Many people have not heard this word before. If you are still unsure what distress means, please talk with your doctor, nurse, counsellor, or another member of your healthcare team. They can help explain it in a way that makes sense to you."
+ASK_DISTRESS_SCORE,"On a scale from 0 to 10, where 0 means no distress at all and 10 means the highest distress you can imagine, how much distress have you felt during the past week?"
+SCORE_RESPONSE_LOW,Thank you for sharing that. It sounds like things may feel a little easier right now.
+SCORE_RESPONSE_LOW_2,I appreciate you telling me. It sounds like you're managing fairly well at the moment.
+SCORE_RESPONSE_MODERATE,Thank you for sharing that. It sounds like there may be a few things weighing on your mind right now.
+SCORE_RESPONSE_MODERATE_2,I appreciate your honesty. It seems some challenges may be making things a little difficult lately.
+SCORE_RESPONSE_HIGH,Thank you for being open with me. It sounds like things may be feeling quite heavy right now.
+SCORE_RESPONSE_HIGH_2,I appreciate you sharing that. It seems you may be carrying a lot at the moment.
+QUESTION_TRANSITION,"Thank you for sharing that, [Name]. I'd now like to ask a few questions to better understand what may be contributing to these feelings. There are no right or wrong answers. Just share whatever feels true for you."
+QUESTION_TRANSITION_2,"Thank you, [Name]. I would now like to gently ask a few questions about different parts of your life, so I can better understand how you have been feeling."
+PAUSE_MESSAGE,That's completely fine. We can pause here for now. I'll be here whenever you're ready to continue.
+RESUME_MESSAGE,"Welcome back, [Name]. Let's continue from where we left off."
+END_MESSAGE,"Thank you for spending this time with me today, [Name]."
+END_MESSAGE_2,"I appreciate you sharing your thoughts and feelings with me today, [Name]. Thank you for your openness."
+DISTRESS_ALERT,"Based on the distress score you shared earlier, it looks like things are a little difficult right now. If you would like extra support, you may talk with your doctor, nurse, counsellor, or another member of your healthcare team. "
+DISCLAIMER,This conversation is designed to support check-ins and reflection. It is not a substitute for medical advice or emergency care.
