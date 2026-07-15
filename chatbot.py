@@ -8,14 +8,21 @@ import uuid
 import base64
 import time
 import psycopg2
+from psycopg2 import pool as pg_pool
 from datetime import datetime
 DEBUG_MODE = True 
 
 @st.cache_resource
+def get_pool():
+    return pg_pool.ThreadedConnectionPool(
+        1, 10, st.secrets["db_url"]
+    )
+
 def get_connection():
-    conn = psycopg2.connect(st.secrets["db_url"])
-    conn.autocommit = False
-    return conn
+    return get_pool().getconn()
+
+def release_connection(conn):
+    get_pool().putconn(conn)
 
 @st.cache_resource
 def init_db():
@@ -50,6 +57,7 @@ def init_db():
     """)
 
     conn.commit()
+    release_connection(conn)
 
 QUESTION_MASCOTS = {
 
@@ -656,6 +664,7 @@ def save_responses():
         ))
 
     conn.commit()
+    release_connection(conn)
 
     st.session_state.responses = []
 
