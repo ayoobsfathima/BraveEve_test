@@ -7,15 +7,16 @@ import os
 import uuid
 import base64
 import time
-import sqlite3
+import psycopg2
 from datetime import datetime
 DEBUG_MODE = True 
 
+def get_connection():
+    return psycopg2.connect(st.secrets["db_url"])
+
 def init_db():
 
-    conn = sqlite3.connect(
-        "braveeve.db"
-    )
+    conn = get_connection()
 
     cursor = conn.cursor()
 
@@ -487,8 +488,8 @@ def load_data():
 def create_question_bank(df):
 
     return (
-        df.groupby("Problem List Item", sort=False, dropna=True)
-          .apply(lambda x: x.sample(1))
+        df.groupby("Problem List Item", sort=False, dropna=True, group_keys=False)
+          .sample(n=1)
           .reset_index(drop=True)
     )
 
@@ -609,9 +610,7 @@ def save_responses():
         "%Y-%m-%d %H:%M:%S"
     )
 
-    conn = sqlite3.connect(
-        "braveeve.db"
-    )
+    conn = get_connection()
 
     cursor = conn.cursor()
 
@@ -619,8 +618,16 @@ def save_responses():
 
         cursor.execute("""
         INSERT INTO responses VALUES (
-        ?,?,?,?,?,?,?,?,?,?,?,?,?
+        %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s
         )
+        ON CONFLICT (session_id, question_number)
+        DO UPDATE SET
+            answer = EXCLUDED.answer,
+            response_source = EXCLUDED.response_source,
+            free_text = EXCLUDED.free_text,
+            completed_at = EXCLUDED.completed_at,
+            session_duration_seconds = EXCLUDED.session_duration_seconds,
+            session_duration_minutes = EXCLUDED.session_duration_minutes
         """, (
 
             row["session_id"],
@@ -1376,6 +1383,8 @@ elif st.session_state.step == 7:
 
             })
 
+            save_responses()
+
             st.session_state.question_answered = True
 
             st.rerun()
@@ -1403,6 +1412,8 @@ elif st.session_state.step == 7:
                 "free_text": ""
 
             })
+
+            save_responses()
 
             st.session_state.question_answered = True
 
@@ -1463,6 +1474,8 @@ elif st.session_state.step == 7:
                     "response_source": "NLP",
                     "free_text": user_text
                 })
+
+                save_responses()
 
                 st.session_state.question_answered = True
 

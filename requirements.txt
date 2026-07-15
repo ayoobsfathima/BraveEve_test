@@ -5,3 +5,4 @@ joblib
 openpyxl
 Pillow
 nltk
+psycopg2-binary
