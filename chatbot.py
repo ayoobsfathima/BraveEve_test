@@ -11,9 +11,13 @@ import psycopg2
 from datetime import datetime
 DEBUG_MODE = True 
 
+@st.cache_resource
 def get_connection():
-    return psycopg2.connect(st.secrets["db_url"])
+    conn = psycopg2.connect(st.secrets["db_url"])
+    conn.autocommit = False
+    return conn
 
+@st.cache_resource
 def init_db():
 
     conn = get_connection()
@@ -46,7 +50,6 @@ def init_db():
     """)
 
     conn.commit()
-    conn.close()
 
 QUESTION_MASCOTS = {
 
@@ -653,7 +656,6 @@ def save_responses():
         ))
 
     conn.commit()
-    conn.close()
 
     st.session_state.responses = []
 
