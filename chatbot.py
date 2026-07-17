@@ -506,6 +506,14 @@ def create_question_bank(df):
 
 question_bank = create_question_bank(variables_df)
 
+SECTIONS = list(question_bank["Category"].unique())
+
+def get_section_items(section_name):
+
+    return question_bank[
+        question_bank["Category"] == section_name
+    ].reset_index(drop=True)
+
 def get_message(key):
 
     result = static_df.loc[
@@ -680,6 +688,9 @@ if "step" not in st.session_state:
     st.session_state.day_reply = ""
     st.session_state.distress_score = None
     st.session_state.nccn_index = 0
+    st.session_state.section_index = 0
+    st.session_state.section_checks = {}
+    st.session_state.question_counter = 0
     st.session_state.responses = []
 
 if "question_answered" not in st.session_state:
@@ -1198,6 +1209,7 @@ elif st.session_state.step == 6:
 
 
 elif st.session_state.step == 7:
+
     st.components.v1.html(
         """
         <script>
@@ -1207,23 +1219,24 @@ elif st.session_state.step == 7:
         height=0
     )
 
-    if st.session_state.nccn_index >= len(question_bank):
+    if st.session_state.section_index >= len(SECTIONS):
 
         st.session_state.step = 999
+
         st.rerun()
 
-    row = question_bank.iloc[
-        st.session_state.nccn_index
-    ]
+    section_name = SECTIONS[st.session_state.section_index]
+
+    section_df = get_section_items(section_name)
 
     progress = (
-        st.session_state.nccn_index + 1
-    ) / len(question_bank)
+        st.session_state.section_index + 1
+    ) / len(SECTIONS)
 
     with st.container(border=True):
 
         st.markdown(
-            f"**Question {st.session_state.nccn_index + 1} of {len(question_bank)}**"
+            f"**Section {st.session_state.section_index + 1} of {len(SECTIONS)}**"
         )
 
         st.progress(progress)
@@ -1239,145 +1252,148 @@ elif st.session_state.step == 7:
             font-size:15px;
             margin-bottom:10px;
         ">
-            {row['Category']}
+            {section_name}
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    question = personalize(
-        row["BraveEve's Conversational Question"]
-    )
+    section_mascot = None
 
-    problem = row["Problem List Item"]
+    for _, m_row in section_df.iterrows():
 
-    mascot = QUESTION_MASCOTS.get(problem)
-    layout = QUESTION_LAYOUT.get(problem, "none")
+        candidate = QUESTION_MASCOTS.get(
+            m_row["Problem List Item"]
+        )
+
+        if candidate:
+
+            section_mascot = candidate
+
+            break
+
+    if section_mascot:
+
+        show_mascot(
+            section_mascot,
+            width=100,
+            align="right"
+        )
 
     st.markdown(
         f"""
-        <div class="card">
-
         <h3 style="
             color:#C85A84;
             margin-bottom:10px;
         ">
-            {row["Problem List Item"]}
+            Have you had concerns about any of these, in the past week including today?
         </h3>
-
         <div style="
-            font-size:22px;
-            line-height:1.6;
-            color:#333333;
-            margin-bottom:10px;
+            font-size:15px;
+            color:#666666;
+            margin-bottom:16px;
         ">
-            {question}
-        </div>
-
+            Mark all that apply. Tap the 💡 next to an item for an example of what someone experiencing this might say.
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    if mascot:
-
-        if layout == "top":
-
-            show_mascot(
-                mascot,
-                width=95,
-                align="right"
-            )
-
-        elif layout == "bottom_left":
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            show_mascot(
-                mascot,
-                width=100,
-                align="left"
-            )
-
-        elif layout == "bottom_right":
-
-            st.markdown("<br>", unsafe_allow_html=True)
-
-            show_mascot(
-                mascot,
-                width=100,
-                align="right"
-            )
-
-        elif layout == "category":
-
-            show_mascot(
-                mascot,
-                width=90,
-                align="center"
-            )
-            
     # =====================================================
-    # EXAMPLE SECTION
+    # ITEM CHECKLIST FOR THIS SECTION
     # =====================================================
-    if st.button(
-        "💡Click here for an example of what someone experiencing this might say",
-        key=f"example_btn_{st.session_state.nccn_index}",
-    ):
-        st.session_state.show_example = True
-    
-    if st.session_state.show_example:
 
-        verbatim = personalize(
-            str(row["Verbatim"])
+    for i, row in section_df.iterrows():
+
+        item = row["Problem List Item"]
+
+        question = personalize(
+            row["BraveEve's Conversational Question"]
         )
 
-        if (
-            verbatim.strip() != ""
-            and verbatim.lower() != "nan"
-        ):
+        check_key = f"chk_{st.session_state.section_index}_{i}"
 
-            st.markdown(
-                f'> {verbatim}'
-            )
+        with st.container(border=True):
 
-        else:
+            col1, col2 = st.columns([0.85, 0.15])
 
-            st.write(
-                "No example is available for this question."
-            )
-    st.divider()  
-    
+            with col1:
+
+                checked = st.checkbox(
+                    f"**{item}:** {question}",
+                    key=check_key,
+                    value=st.session_state.section_checks.get(
+                        item, False
+                    )
+                )
+
+            with col2:
+
+                with st.popover("💡"):
+
+                    verbatim = personalize(
+                        str(row["Verbatim"])
+                    )
+
+                    if (
+                        verbatim.strip() != ""
+                        and verbatim.lower() != "nan"
+                    ):
+
+                        st.caption(
+                            "Example of what someone experiencing this might say:"
+                        )
+
+                        st.markdown(f"> {verbatim}")
+
+                    else:
+
+                        st.caption(
+                            "No example is available for this item."
+                        )
+
+            st.session_state.section_checks[item] = checked
+
+            if checked:
+
+                affirmation = personalize(
+                    str(row["Yes"])
+                )
+
+                if (
+                    affirmation.strip() != ""
+                    and affirmation.lower() != "nan"
+                ):
+
+                    st.success(affirmation)
+
+    st.divider()
+
     # =====================================================
-    # YES / NO FIRST
+    # SHARED NOTES BOX FOR THIS SECTION
     # =====================================================
 
-    if not st.session_state.question_answered:
-        st.write(
-                "Your answer:"
-            )
-        c1, c2 = st.columns(2)
+    note_key = f"section_note_{st.session_state.section_index}"
 
-        with c1:
-            yes_clicked = st.button(
-                "Yes",
-                use_container_width=True
-            )
+    st.markdown("**You can share your thoughts here**")
 
-        with c2:
-            no_clicked = st.button(
-                "No",
-                use_container_width=True
-            )
+    user_note = st.text_area(
+        "You can share your thoughts here",
+        key=note_key,
+        label_visibility="collapsed"
+    )
 
-        if yes_clicked:
+    if st.button("Next", type="primary"):
 
-            yes_response = personalize(
-                row["Yes"]
+        for i, row in section_df.iterrows():
+
+            item = row["Problem List Item"]
+
+            is_checked = st.session_state.section_checks.get(
+                item, False
             )
 
-            st.session_state.response_message = yes_response
-            st.session_state.response_type = "info"
+            st.session_state.question_counter += 1
 
             st.session_state.responses.append({
 
@@ -1385,211 +1401,79 @@ elif st.session_state.step == 7:
                 "timestamp": datetime.now(),
                 "name": st.session_state.name,
                 "distress_score": st.session_state.distress_score,
-                "question_number": st.session_state.nccn_index + 1,
+                "question_number": st.session_state.question_counter,
                 "category": row["Category"],
-                "problem_item": row["Problem List Item"],
-                "answer": "YES",
-                "response_source": "BUTTON",
+                "problem_item": item,
+                "answer": "YES" if is_checked else "NO",
+                "response_source": "CHECKBOX",
                 "free_text": ""
 
             })
 
-            save_responses()
+        note_text = user_note.strip()
 
-            st.session_state.question_answered = True
+        if note_text != "":
 
-            st.rerun()
+            cleaned = clean_text(note_text)
 
-        if no_clicked:
-
-            no_response = personalize(
-                row["No"]
-            )
-
-            st.session_state.response_message = no_response
-            st.session_state.response_type = "success"
-
-            st.session_state.responses.append({
-
-                "session_id": st.session_state.session_id,
-                "timestamp": datetime.now(),
-                "name": st.session_state.name,
-                "distress_score": st.session_state.distress_score,
-                "question_number": st.session_state.nccn_index + 1,
-                "category": row["Category"],
-                "problem_item": row["Problem List Item"],
-                "answer": "NO",
-                "response_source": "BUTTON",
-                "free_text": ""
-
-            })
-
-            save_responses()
-
-            st.session_state.question_answered = True
-
-            st.rerun()
-
-    # =====================================================
-    # OR TEXT RESPONSE
-    # =====================================================
-
-    if not st.session_state.question_answered:
-
-        st.markdown("### OR")
-
-        user_text = st.text_area(
-            "You can share your thoughts here",
-            key=f"text_{st.session_state.nccn_index}"
-        )
-
-        if st.button("Submit Response"):
-
-            if user_text.strip() != "":
-
-                cleaned = clean_text(
-                    user_text
-                )
-
-                prediction = model.predict(
-                    [cleaned]
-                )[0]
-
-                st.session_state.debug_prediction = prediction
-
-                if prediction == "YES":
-
-                    st.session_state.response_message = personalize(
-                        row["Yes"]
-                    )
-
-                    st.session_state.response_type = "info"
-
-                else:
-
-                    st.session_state.response_message = personalize(
-                        row["No"]
-                    )
-
-                    st.session_state.response_type = "success"
-
-                st.session_state.responses.append({
-                    "session_id": st.session_state.session_id,
-                    "timestamp": datetime.now(),
-                    "name": st.session_state.name,
-                    "distress_score": st.session_state.distress_score,
-                    "question_number": st.session_state.nccn_index + 1,
-                    "category": row["Category"],
-                    "problem_item": row["Problem List Item"],
-                    "answer": prediction,
-                    "response_source": "NLP",
-                    "free_text": user_text
-                })
-
-                save_responses()
-
-                st.session_state.question_answered = True
-
-                st.rerun()
-
-    # =====================================================
-    # SHOW RESPONSE
-    # =====================================================
-
-    if (
-        st.session_state.question_answered
-        and st.session_state.response_message
-    ):
-
-        if st.session_state.response_type == "info":
-
-            st.info(
-                st.session_state.response_message
-            )
+            prediction = model.predict(
+                [cleaned]
+            )[0]
 
         else:
 
-            st.success(
-                st.session_state.response_message
-            )
+            prediction = ""
 
-        if (
-            DEBUG_MODE
-            and st.session_state.debug_prediction
-        ):
+        st.session_state.question_counter += 1
 
-            st.caption(
-                f"Prediction: {st.session_state.debug_prediction}"
-            )
+        st.session_state.responses.append({
 
-    # =====================================================
-    # NEXT QUESTION
-    # =====================================================
+            "session_id": st.session_state.session_id,
+            "timestamp": datetime.now(),
+            "name": st.session_state.name,
+            "distress_score": st.session_state.distress_score,
+            "question_number": st.session_state.question_counter,
+            "category": section_name,
+            "problem_item": "Section Notes",
+            "answer": prediction,
+            "response_source": "NLP" if note_text != "" else "NONE",
+            "free_text": note_text
 
-    if st.session_state.question_answered:
+        })
 
-        st.divider()
+        save_responses()
 
-        if (
-            st.session_state.nccn_index
-            < len(question_bank) - 1
-        ):
+        st.session_state.section_checks = {}
+        st.session_state.section_index += 1
 
-            if st.button("Next Question →"):
-
-                text_key = (
-                    f"text_{st.session_state.nccn_index}"
-                )
-
-                if text_key in st.session_state:
-
-                    del st.session_state[text_key]
-
-                st.session_state.question_answered = False
-                st.session_state.show_example = False
-                st.session_state.show_prediction = None
-
-                st.session_state.response_message = ""
-                st.session_state.response_type = ""
-                st.session_state.debug_prediction = ""
-                st.session_state.nccn_index += 1
-                st.rerun()
-
-        else:
-
-            if st.button("Finish"):
-                save_responses()
-                st.session_state.step = 999
-
-                st.rerun()
+        st.rerun()
 
     # =====================================================
     # PAUSE / STOP
     # =====================================================
 
-    if st.session_state.nccn_index < len(question_bank) - 1:
+    st.divider()
 
-        st.divider()
+    s1, s2 = st.columns(2)
 
-        s1, s2 = st.columns(2)
+    if s1.button("Pause"):
 
-        if s1.button("Pause"):
+        st.session_state.pause_start_time = (
+            time.time()
+        )
 
-            st.session_state.pause_start_time = (
-                time.time()
-            )
+        st.session_state.step = 888
 
-            st.session_state.step = 888
+        st.rerun()
 
-            st.rerun()
+    if s2.button("Stop"):
 
-        if s2.button("Stop"):
+        save_responses()
 
-            save_responses()
+        st.session_state.step = 999
 
-            st.session_state.step = 999
+        st.rerun()
 
-            st.rerun()
 
 # =========================================================
 # PAUSE PAGE
