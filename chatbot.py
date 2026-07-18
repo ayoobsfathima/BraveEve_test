@@ -276,6 +276,12 @@ st.markdown(
     f"""
     <style>
 
+    /* Prevent the browser from auto-restoring scroll position
+       when content shifts, which fights our scroll-to-top script */
+    html, body {{
+        overflow-anchor: none !important;
+    }}
+
     /* Increase general text size */
     p, li, label, div {{
         font-size: 18px !important;
@@ -508,6 +514,16 @@ question_bank = create_question_bank(variables_df)
 
 SECTIONS = list(question_bank["Category"].unique())
 
+ITEM_QUESTION_NUMBER = {
+    item: idx + 1
+    for idx, item in enumerate(question_bank["Problem List Item"])
+}
+
+SECTION_NOTES_QUESTION_NUMBER = {
+    section: 1000 + idx
+    for idx, section in enumerate(SECTIONS)
+}
+
 def get_section_items(section_name):
 
     return question_bank[
@@ -690,7 +706,6 @@ if "step" not in st.session_state:
     st.session_state.nccn_index = 0
     st.session_state.section_index = 0
     st.session_state.section_checks = {}
-    st.session_state.question_counter = 0
     st.session_state.responses = []
 
 if "question_answered" not in st.session_state:
@@ -1213,7 +1228,30 @@ elif st.session_state.step == 7:
     st.components.v1.html(
         """
         <script>
-        window.parent.scrollTo(0,0);
+        (function() {
+            var attempts = 0;
+            function doScroll(win) {
+                try {
+                    win.scrollTo(0, 0);
+                    var doc = win.document;
+                    var main = doc.querySelector('section.main')
+                        || doc.querySelector('[data-testid="stMain"]')
+                        || doc.querySelector('[data-testid="stAppViewContainer"]');
+                    if (main) { main.scrollTop = 0; }
+                    doc.documentElement.scrollTop = 0;
+                    doc.body.scrollTop = 0;
+                } catch (e) {}
+            }
+            function scrollUp() {
+                doScroll(window.parent);
+                doScroll(window.top);
+                attempts++;
+                if (attempts < 30) {
+                    setTimeout(scrollUp, 100);
+                }
+            }
+            scrollUp();
+        })();
         </script>
         """,
         height=0
@@ -1233,31 +1271,6 @@ elif st.session_state.step == 7:
         st.session_state.section_index + 1
     ) / len(SECTIONS)
 
-    with st.container(border=True):
-
-        st.markdown(
-            f"**Section {st.session_state.section_index + 1} of {len(SECTIONS)}**"
-        )
-
-        st.progress(progress)
-
-    st.markdown(
-        f"""
-        <div style="
-            display:inline-block;
-            background:#F8DCE6;
-            color:#A3476A;
-            padding:6px 14px;
-            border-radius:20px;
-            font-size:15px;
-            margin-bottom:10px;
-        ">
-            {section_name}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
     section_mascot = None
 
     for _, m_row in section_df.iterrows():
@@ -1272,26 +1285,61 @@ elif st.session_state.step == 7:
 
             break
 
+    mascot_img_tag = ""
+
     if section_mascot:
 
-        show_mascot(
-            section_mascot,
-            width=100,
-            align="right"
+        mascot_b64 = mascot_html(section_mascot)
+
+        mascot_img_tag = (
+            f'<img src="data:image/png;base64,{mascot_b64}" '
+            f'width="130" style="margin-top:-10px;">'
         )
+
+    st.markdown(
+        f"""
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:10px;
+        ">
+            <div style="
+                display:inline-block;
+                background:#F8DCE6;
+                color:#A3476A;
+                padding:6px 14px;
+                border-radius:20px;
+                font-size:15px;
+            ">
+                {section_name}
+            </div>
+            {mascot_img_tag}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    with st.container(border=True):
+
+        st.markdown(
+            f"**Section {st.session_state.section_index + 1} of {len(SECTIONS)}**"
+        )
+
+        st.progress(progress)
 
     st.markdown(
         f"""
         <h3 style="
             color:#C85A84;
-            margin-bottom:10px;
+            margin:12px 0 8px 0;
         ">
             Have you had concerns about any of these, in the past week including today?
         </h3>
         <div style="
             font-size:15px;
             color:#666666;
-            margin-bottom:16px;
+            margin-bottom:12px;
         ">
             Mark all that apply. Tap the 💡 next to an item for an example of what someone experiencing this might say.
         </div>
@@ -1383,7 +1431,25 @@ elif st.session_state.step == 7:
         label_visibility="collapsed"
     )
 
-    if st.button("Next", type="primary"):
+    nav_col1, nav_col2 = st.columns(2)
+
+    with nav_col1:
+
+        if st.session_state.section_index > 0:
+
+            if st.button("Back"):
+
+                st.session_state.section_index -= 1
+
+                st.session_state.section_checks = {}
+
+                st.rerun()
+
+    with nav_col2:
+
+        next_clicked = st.button("Next", type="primary")
+
+    if next_clicked:
 
         for i, row in section_df.iterrows():
 
@@ -1393,15 +1459,13 @@ elif st.session_state.step == 7:
                 item, False
             )
 
-            st.session_state.question_counter += 1
-
             st.session_state.responses.append({
 
                 "session_id": st.session_state.session_id,
                 "timestamp": datetime.now(),
                 "name": st.session_state.name,
                 "distress_score": st.session_state.distress_score,
-                "question_number": st.session_state.question_counter,
+                "question_number": ITEM_QUESTION_NUMBER[item],
                 "category": row["Category"],
                 "problem_item": item,
                 "answer": "YES" if is_checked else "NO",
@@ -1424,15 +1488,13 @@ elif st.session_state.step == 7:
 
             prediction = ""
 
-        st.session_state.question_counter += 1
-
         st.session_state.responses.append({
 
             "session_id": st.session_state.session_id,
             "timestamp": datetime.now(),
             "name": st.session_state.name,
             "distress_score": st.session_state.distress_score,
-            "question_number": st.session_state.question_counter,
+            "question_number": SECTION_NOTES_QUESTION_NUMBER[section_name],
             "category": section_name,
             "problem_item": "Section Notes",
             "answer": prediction,
