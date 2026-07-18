@@ -10,6 +10,7 @@ import time
 import psycopg2
 from psycopg2 import pool as pg_pool
 from datetime import datetime
+from streamlit_scroll_to_top import scroll_to_here
 DEBUG_MODE = True 
 
 @st.cache_resource
@@ -275,6 +276,12 @@ st.set_page_config(
 st.markdown(
     f"""
     <style>
+
+    /* Reduce Streamlit's default reserved space above the content,
+       so scrolling to top lands closer to the actual page content */
+    .block-container {{
+        padding-top: 2rem !important;
+    }}
 
     /* Prevent the browser from auto-restoring scroll position
        when content shifts, which fights our scroll-to-top script */
@@ -706,6 +713,7 @@ if "step" not in st.session_state:
     st.session_state.nccn_index = 0
     st.session_state.section_index = 0
     st.session_state.section_checks = {}
+    st.session_state.trigger_scroll = True
     st.session_state.responses = []
 
 if "question_answered" not in st.session_state:
@@ -1225,37 +1233,14 @@ elif st.session_state.step == 6:
 
 elif st.session_state.step == 7:
 
-    st.components.v1.html(
-        """
-        <script>
-        (function() {
-            var attempts = 0;
-            function doScroll(win) {
-                try {
-                    win.scrollTo(0, 0);
-                    var doc = win.document;
-                    var main = doc.querySelector('section.main')
-                        || doc.querySelector('[data-testid="stMain"]')
-                        || doc.querySelector('[data-testid="stAppViewContainer"]');
-                    if (main) { main.scrollTop = 0; }
-                    doc.documentElement.scrollTop = 0;
-                    doc.body.scrollTop = 0;
-                } catch (e) {}
-            }
-            function scrollUp() {
-                doScroll(window.parent);
-                doScroll(window.top);
-                attempts++;
-                if (attempts < 30) {
-                    setTimeout(scrollUp, 100);
-                }
-            }
-            scrollUp();
-        })();
-        </script>
-        """,
-        height=0
-    )
+    if st.session_state.get("trigger_scroll", False):
+
+        scroll_to_here(
+            0,
+            key=f"scroll_{st.session_state.section_index}"
+        )
+
+        st.session_state.trigger_scroll = False
 
     if st.session_state.section_index >= len(SECTIONS):
 
@@ -1443,6 +1428,8 @@ elif st.session_state.step == 7:
 
                 st.session_state.section_checks = {}
 
+                st.session_state.trigger_scroll = True
+
                 st.rerun()
 
     with nav_col2:
@@ -1507,6 +1494,7 @@ elif st.session_state.step == 7:
 
         st.session_state.section_checks = {}
         st.session_state.section_index += 1
+        st.session_state.trigger_scroll = True
 
         st.rerun()
 

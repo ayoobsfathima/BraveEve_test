@@ -6,3 +6,4 @@ openpyxl
 Pillow
 nltk
 psycopg2-binary
+streamlit-scroll-to-top
