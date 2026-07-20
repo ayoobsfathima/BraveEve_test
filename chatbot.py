@@ -223,11 +223,63 @@ NOTES_BOX_PROMPTS = [
     "been particularly challenging or troubling lately, you can always "
     "share it here.",
 
-    "If you have any other concerns or feel like there's something else "
-    "you need to get off your chest, this is a safe space to do so.",
+    "Please feel free to share any other concerns, or anything else "
+    "that might be bothering you, right here.",
 
-    "If anything else is causing you stress or if you just need a moment "
-    "to share what's happening, feel free to write it down here."
+    "If you just need a moment to share what's happening, feel free to "
+    "write it down here."
+
+]
+
+# =========================================================
+# CLOSING ACKNOWLEDGMENT MESSAGES (final page, chosen at random)
+# =========================================================
+
+CLOSING_ACKNOWLEDGMENTS = [
+
+    "That's the last of it, [Name] — you've made it through. Answering "
+    "these honestly isn't easy, and it took real courage to sit with "
+    "these questions today. Thank you for trusting me with this.",
+
+    "That's the final question, [Name] — you did it. Opening up "
+    "honestly like this isn't easy, and it takes real strength to get "
+    "through it all. Thank you for trusting me with your story today.",
+
+    "We're all done, [Name]. I know looking closely at these things can "
+    "be tough, and I'm so glad you stayed with it. Thank you for your "
+    "honesty and for sharing this space with me.",
+
+    "That's the last of it, [Name]. Being vulnerable takes a lot of "
+    "courage, and you did incredibly well today. Thank you for placing "
+    "your trust in me.",
+
+    "You've officially made it through, [Name]. Reflecting on these "
+    "questions takes a lot of emotional energy, and you showed real "
+    "bravery by facing them. Thank you for trusting me.",
+
+    "And that brings us to the end, [Name]. I truly appreciate how open "
+    "you've been. It's never easy to sit with these kinds of questions, "
+    "and I'm incredibly grateful for your trust.",
+
+    "That's everything, [Name] — you made it to the finish line. It "
+    "takes massive courage to be this honest, even when it feels heavy. "
+    "Thank you for letting me in and sharing this.",
+
+    "We've covered it all, [Name]. Thank you for being so deeply honest "
+    "today. It isn't easy to face these thoughts head-on, and I hold "
+    "your trust with a lot of respect.",
+
+    "That wraps things up, [Name]. You can take a deep breath — you "
+    "made it through. Sitting with these questions takes genuine "
+    "courage, and I appreciate you trusting me with your answers.",
+
+    "That's the last one, [Name]. You made it through a tough process "
+    "with total honesty, and that takes real bravery. Thank you for "
+    "trusting me.",
+
+    "You've made it through the whole way, [Name]. I know this wasn't a "
+    "simple walk in the park, and your courage to speak your truth "
+    "today means a lot. Thank you for your trust."
 
 ]
 
@@ -412,23 +464,6 @@ st.markdown(
        when content shifts, which fights our scroll-to-top script */
     html, body {{
         overflow-anchor: none !important;
-    }}
-
-    /* Keep button rows (Back/Next, Pause/Stop, etc.) side-by-side
-       on mobile instead of stacking vertically */
-    [data-testid="stHorizontalBlock"] {{
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-    }}
-
-    [data-testid="stHorizontalBlock"] > div {{
-        width: 100% !important;
-        flex: 1 1 0 !important;
-        min-width: 0 !important;
-    }}
-
-    [data-testid="stHorizontalBlock"] .stButton button {{
-        width: 100% !important;
     }}
 
     /* Increase general text size */
@@ -858,7 +893,9 @@ if "step" not in st.session_state:
     st.session_state.trigger_scroll = True
     st.session_state.awaiting_continue = False
     st.session_state.pending_message = ""
-    st.session_state.note_prompts = {}
+    st.session_state.note_prompt_order = random.sample(
+        NOTES_BOX_PROMPTS, len(NOTES_BOX_PROMPTS)
+    )
     st.session_state.responses = []
 
 if "question_answered" not in st.session_state:
@@ -1559,14 +1596,8 @@ elif st.session_state.step == 7:
 
     note_key = f"section_note_{st.session_state.section_index}"
 
-    if st.session_state.section_index not in st.session_state.note_prompts:
-
-        st.session_state.note_prompts[
-            st.session_state.section_index
-        ] = random.choice(NOTES_BOX_PROMPTS)
-
-    note_prompt = st.session_state.note_prompts[
-        st.session_state.section_index
+    note_prompt = st.session_state.note_prompt_order[
+        st.session_state.section_index % len(st.session_state.note_prompt_order)
     ]
 
     st.markdown(f"**{note_prompt}**")
@@ -1879,11 +1910,10 @@ elif st.session_state.step == 889:
     
 elif st.session_state.step == 999:
 
+    scroll_to_here(0, key="scroll_final_page")
+
     closing_acknowledgment = personalize(
-        "That's the last of it, [Name] — you've made it through. "
-        "Answering these honestly isn't easy, and it took real courage "
-        "to sit with these questions today. Thank you for trusting me "
-        "with this."
+        random.choice(CLOSING_ACKNOWLEDGMENTS)
     )
 
     st.markdown(
