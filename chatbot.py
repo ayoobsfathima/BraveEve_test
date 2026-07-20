@@ -106,6 +106,131 @@ QUESTION_MASCOTS = {
     "Ritual or dietary needs": "BraveEve_proud"
 }
 
+# =========================================================
+# SECTION INTRO HEADERS (shown at the top of each section page,
+# in fixed order: Physical, Emotional, Social, Practical, Spiritual)
+# =========================================================
+
+SECTION_INTROS = [
+
+    "[Name], let's start with how your body has been feeling. "
+    "Have you had any of these concerns in the past week, including today?",
+
+    "Now, [Name], I'd like to check in on how you've been feeling inside. "
+    "Have any of these been on your mind this past week, including today?",
+
+    "Next, [Name], let's talk about the people around you. "
+    "Have you had any of these concerns in the past week, including today?",
+
+    "[Name], now I'd like to ask about some everyday things in your life. "
+    "Take your time — you can always pause if you need to. "
+    "Have you noticed any of these in the past week, including today?",
+
+    "Lastly, [Name], I'd like to ask about your faith and beliefs. "
+    "Have any of these been on your mind this past week, including today?"
+
+]
+
+# =========================================================
+# EMPATHETIC RESPONSES TO THE SHARED SECTION NOTES,
+# chosen at random based on the NLP model's Yes/No prediction
+# =========================================================
+
+NOTES_RESPONSE_YES = [
+
+    "I can truly feel how much you're carrying right now, [Name], and I am "
+    "so deeply sorry that things are this heavy. Please know you don't have "
+    "to navigate this overwhelming weight all by yourself.",
+
+    "Hearing you talk about this, [Name], it's completely clear how "
+    "exhausting and intense everything is for you right now. I'm right "
+    "here with you, and we can take this as slowly as you need.",
+
+    "I'm so sorry, [Name]. I can hear the immense weight in your voice "
+    "right now, and it makes complete sense that you feel entirely "
+    "overwhelmed by all of this.",
+
+    "Thank you for being so open with me, [Name]. I can hear how "
+    "incredibly painful and chaotic things feel right now. Let's take a "
+    "deep breath together — we will go entirely at your pace.",
+
+    "It sounds like you are being pushed to your absolute limit right "
+    "now, [Name], and I am so incredibly sorry. No one should have to "
+    "bear this kind of distress alone.",
+
+    "I can hear how entirely drained and overwhelmed you feel, [Name]. "
+    "I'm so sorry things are this hard. Let's see if we can find even "
+    "just one or two small areas where we can bring you a little relief.",
+
+    "I am listening closely, [Name], and I can hear just how heavy, raw, "
+    "and overwhelming this moment is for you. I'm so sorry you are going "
+    "through this, but I'm glad you're telling me.",
+
+    "Everything you're describing sounds incredibly heavy and "
+    "overwhelming, [Name]. I'm so sorry it's reached this point. Let's "
+    "look at this list together specifically to see how we can lift some "
+    "of this weight off your shoulders."
+
+]
+
+NOTES_RESPONSE_NO = [
+
+    "It brings me so much joy to hear that you're in a really good, "
+    "steady space right now, [Name]! I'm so glad to hear that things are "
+    "feeling manageable.",
+
+    "I am incredibly glad to hear that you are feeling steady and doing "
+    "well today, [Name]. It sounds like you've found a really good "
+    "balance right now.",
+
+    "That is wonderful to hear, [Name]! I'm so glad you're feeling good "
+    "and that things are going smoothly for you today.",
+
+    "I'm so happy you're feeling well and steady right now, [Name]. "
+    "Let's do a quick check on these items just to ensure we keep things "
+    "running this smoothly for you.",
+
+    "It is so refreshing to hear that you're doing well and feeling "
+    "peaceful today, [Name]. I'm truly glad to know that things are "
+    "feeling lighter for you.",
+
+    "I love hearing that, [Name]! It sounds like you're in a really "
+    "steady place today, which is fantastic news.",
+
+    "I'm so glad to hear you're doing well, [Name]. Even when things are "
+    "steady, we like to double-check the little things just to make sure "
+    "nothing is quietly pulling your energy away.",
+
+    "Thank you for sharing that, [Name] — I'm truly happy to hear that "
+    "you're feeling well and that life feels manageable and stable for "
+    "you right now."
+
+]
+
+# =========================================================
+# ROTATING PROMPTS FOR THE SHARED SECTION NOTES BOX
+# =========================================================
+
+NOTES_BOX_PROMPTS = [
+
+    "If you have any other concerns or feel like there's something else "
+    "you need to get off your chest, this is a safe space to do so.",
+
+    "If there's anything else on your mind or something you're currently "
+    "struggling with, please feel free to share it here. I'm listening.",
+
+    "Is there anything else you'd like to talk about? If something has "
+    "been particularly challenging or troubling lately, you can always "
+    "share it here.",
+
+    "If you have any other concerns or feel like there's something else "
+    "you need to get off your chest, this is a safe space to do so.",
+
+    "If anything else is causing you stress or if you just need a moment "
+    "to share what's happening, feel free to write it down here."
+
+]
+
 QUESTION_LAYOUT = {
 
     "Pain": "top",
@@ -287,6 +412,23 @@ st.markdown(
        when content shifts, which fights our scroll-to-top script */
     html, body {{
         overflow-anchor: none !important;
+    }}
+
+    /* Keep button rows (Back/Next, Pause/Stop, etc.) side-by-side
+       on mobile instead of stacking vertically */
+    [data-testid="stHorizontalBlock"] {{
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+    }}
+
+    [data-testid="stHorizontalBlock"] > div {{
+        width: 100% !important;
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+    }}
+
+    [data-testid="stHorizontalBlock"] .stButton button {{
+        width: 100% !important;
     }}
 
     /* Increase general text size */
@@ -714,6 +856,9 @@ if "step" not in st.session_state:
     st.session_state.section_index = 0
     st.session_state.section_checks = {}
     st.session_state.trigger_scroll = True
+    st.session_state.awaiting_continue = False
+    st.session_state.pending_message = ""
+    st.session_state.note_prompts = {}
     st.session_state.responses = []
 
 if "question_answered" not in st.session_state:
@@ -1313,13 +1458,19 @@ elif st.session_state.step == 7:
 
         st.progress(progress)
 
+    intro_text = personalize(
+        SECTION_INTROS[st.session_state.section_index]
+        if st.session_state.section_index < len(SECTION_INTROS)
+        else "Have you had concerns about any of these, in the past week including today?"
+    )
+
     st.markdown(
         f"""
         <h3 style="
             color:#C85A84;
             margin:12px 0 8px 0;
         ">
-            Have you had concerns about any of these, in the past week including today?
+            {intro_text}
         </h3>
         <div style="
             font-size:15px;
@@ -1408,43 +1559,143 @@ elif st.session_state.step == 7:
 
     note_key = f"section_note_{st.session_state.section_index}"
 
-    st.markdown("**You can share your thoughts here**")
+    if st.session_state.section_index not in st.session_state.note_prompts:
+
+        st.session_state.note_prompts[
+            st.session_state.section_index
+        ] = random.choice(NOTES_BOX_PROMPTS)
+
+    note_prompt = st.session_state.note_prompts[
+        st.session_state.section_index
+    ]
+
+    st.markdown(f"**{note_prompt}**")
 
     user_note = st.text_area(
-        "You can share your thoughts here",
+        note_prompt,
         key=note_key,
-        label_visibility="collapsed"
+        label_visibility="collapsed",
+        disabled=st.session_state.awaiting_continue
     )
 
-    nav_col1, nav_col2 = st.columns(2)
+    # =====================================================
+    # EMPATHETIC RESPONSE TO THE NOTES (shown after submitting)
+    # =====================================================
 
-    with nav_col1:
+    if st.session_state.awaiting_continue:
 
-        if st.session_state.section_index > 0:
+        st.markdown(
+            f"""
+            <div style="
+                background:#FFF3F8;
+                border:1px solid #F3C6DA;
+                border-radius:14px;
+                padding:18px 20px;
+                margin:14px 0 18px 0;
+                font-size:17px;
+                color:#7A3B54;
+                line-height:1.5;
+            ">
+                {st.session_state.pending_message}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-            if st.button("Back"):
+        scroll_to_here(
+            0,
+            key=f"scroll_msg_{st.session_state.section_index}"
+        )
 
-                st.session_state.section_index -= 1
+        is_last_section = (
+            st.session_state.section_index == len(SECTIONS) - 1
+        )
 
-                st.session_state.section_checks = {}
+        if st.button(
+            "Finish" if is_last_section else "Continue",
+            type="primary"
+        ):
 
-                st.session_state.trigger_scroll = True
+            st.session_state.awaiting_continue = False
+            st.session_state.pending_message = ""
 
-                st.rerun()
+            st.session_state.section_checks = {}
+            st.session_state.section_index += 1
+            st.session_state.trigger_scroll = True
 
-    with nav_col2:
+            st.rerun()
 
-        next_clicked = st.button("Next", type="primary")
+    else:
 
-    if next_clicked:
+        # =================================================
+        # NAVIGATION
+        # =================================================
 
-        for i, row in section_df.iterrows():
+        nav_col1, nav_col2 = st.columns(2)
 
-            item = row["Problem List Item"]
+        with nav_col1:
 
-            is_checked = st.session_state.section_checks.get(
-                item, False
+            if st.session_state.section_index > 0:
+
+                if st.button("Back"):
+
+                    st.session_state.section_index -= 1
+
+                    st.session_state.section_checks = {}
+
+                    st.session_state.trigger_scroll = True
+
+                    st.rerun()
+
+        with nav_col2:
+
+            is_last_section = (
+                st.session_state.section_index == len(SECTIONS) - 1
             )
+
+            next_clicked = st.button(
+                "Finish" if is_last_section else "Next",
+                type="primary"
+            )
+
+        if next_clicked:
+
+            for i, row in section_df.iterrows():
+
+                item = row["Problem List Item"]
+
+                is_checked = st.session_state.section_checks.get(
+                    item, False
+                )
+
+                st.session_state.responses.append({
+
+                    "session_id": st.session_state.session_id,
+                    "timestamp": datetime.now(),
+                    "name": st.session_state.name,
+                    "distress_score": st.session_state.distress_score,
+                    "question_number": ITEM_QUESTION_NUMBER[item],
+                    "category": row["Category"],
+                    "problem_item": item,
+                    "answer": "YES" if is_checked else "NO",
+                    "response_source": "CHECKBOX",
+                    "free_text": ""
+
+                })
+
+            note_text = user_note.strip()
+
+            if note_text != "":
+
+                cleaned = clean_text(note_text)
+
+                prediction = model.predict(
+                    [cleaned]
+                )[0]
+
+            else:
+
+                prediction = ""
 
             st.session_state.responses.append({
 
@@ -1452,77 +1703,71 @@ elif st.session_state.step == 7:
                 "timestamp": datetime.now(),
                 "name": st.session_state.name,
                 "distress_score": st.session_state.distress_score,
-                "question_number": ITEM_QUESTION_NUMBER[item],
-                "category": row["Category"],
-                "problem_item": item,
-                "answer": "YES" if is_checked else "NO",
-                "response_source": "CHECKBOX",
-                "free_text": ""
+                "question_number": SECTION_NOTES_QUESTION_NUMBER[section_name],
+                "category": section_name,
+                "problem_item": "Section Notes",
+                "answer": prediction,
+                "response_source": "NLP" if note_text != "" else "NONE",
+                "free_text": note_text
 
             })
 
-        note_text = user_note.strip()
+            save_responses()
 
-        if note_text != "":
+            note_given = note_text != ""
+            pred_clean = str(prediction).strip().lower()
 
-            cleaned = clean_text(note_text)
+            if note_given and pred_clean in ("yes", "no"):
 
-            prediction = model.predict(
-                [cleaned]
-            )[0]
+                bank = (
+                    NOTES_RESPONSE_YES
+                    if pred_clean == "yes"
+                    else NOTES_RESPONSE_NO
+                )
 
-        else:
+                st.session_state.pending_message = personalize(
+                    random.choice(bank)
+                )
 
-            prediction = ""
+                st.session_state.awaiting_continue = True
 
-        st.session_state.responses.append({
+                st.rerun()
 
-            "session_id": st.session_state.session_id,
-            "timestamp": datetime.now(),
-            "name": st.session_state.name,
-            "distress_score": st.session_state.distress_score,
-            "question_number": SECTION_NOTES_QUESTION_NUMBER[section_name],
-            "category": section_name,
-            "problem_item": "Section Notes",
-            "answer": prediction,
-            "response_source": "NLP" if note_text != "" else "NONE",
-            "free_text": note_text
+            else:
 
-        })
+                st.session_state.section_checks = {}
+                st.session_state.section_index += 1
+                st.session_state.trigger_scroll = True
 
-        save_responses()
+                st.rerun()
 
-        st.session_state.section_checks = {}
-        st.session_state.section_index += 1
-        st.session_state.trigger_scroll = True
+        # =================================================
+        # PAUSE / STOP
+        # =================================================
 
-        st.rerun()
+        st.divider()
 
-    # =====================================================
-    # PAUSE / STOP
-    # =====================================================
+        s1, s2 = st.columns(2)
 
-    st.divider()
+        if s1.button("Pause"):
 
-    s1, s2 = st.columns(2)
+            st.session_state.pause_start_time = (
+                time.time()
+            )
 
-    if s1.button("Pause"):
+            st.session_state.step = 888
 
-        st.session_state.pause_start_time = (
-            time.time()
-        )
+            st.rerun()
 
-        st.session_state.step = 888
+        if s2.button("Stop"):
 
-        st.rerun()
+            save_responses()
 
-    if s2.button("Stop"):
+            st.session_state.step = 999
 
-        save_responses()
+            st.rerun()
 
-        st.session_state.step = 999
 
-        st.rerun()
 
 
 # =========================================================
@@ -1633,6 +1878,31 @@ elif st.session_state.step == 889:
 # =========================================================
     
 elif st.session_state.step == 999:
+
+    closing_acknowledgment = personalize(
+        "That's the last of it, [Name] — you've made it through. "
+        "Answering these honestly isn't easy, and it took real courage "
+        "to sit with these questions today. Thank you for trusting me "
+        "with this."
+    )
+
+    st.markdown(
+        f"""
+        <div style="
+            background:#FFF3F8;
+            border:1px solid #F3C6DA;
+            border-radius:14px;
+            padding:18px 20px;
+            margin-bottom:16px;
+            font-size:17px;
+            color:#7A3B54;
+            line-height:1.5;
+        ">
+            {closing_acknowledgment}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     end_message = random.choice([
         get_message("END_MESSAGE"),
