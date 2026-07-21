@@ -11,7 +11,7 @@ DISTRESS_UNDERSTOOD,Did you understand the meaning?
 DISTRESS_REEXPLAIN,"Another way to think about distress is this: if something is making your days feel harder, more tiring, more worrying, or less enjoyable than before, that can be distress."
 DISTRESS_REEXPLAIN_CHECK,Did you understand now?
 DISTRESS_NOT_UNDERSTOOD_HELP,"That's okay. Many people have not heard this word before. If you are still unsure what distress means, please talk with your doctor, nurse, counsellor, or another member of your healthcare team. They can help explain it in a way that makes sense to you."
-ASK_DISTRESS_SCORE,"On a scale from 0 to 10, where 0 means no distress at all and 10 means the highest distress you can imagine, how much distress have you felt during the past week?"
+ASK_DISTRESS_SCORE,"Think about the past week, including today. How much distress have you been feeling? Choose a number from 0 to 10. A score of 0 means no distress at all. A score of 10 means the highest distress you can imagine. As your distress increases, the number also increases. Choose the number that best matches how you have been feeling."
 SCORE_RESPONSE_LOW,Thank you for sharing that. It sounds like things may feel a little easier right now.
 SCORE_RESPONSE_LOW_2,I appreciate you telling me. It sounds like you're managing fairly well at the moment.
 SCORE_RESPONSE_MODERATE,Thank you for sharing that. It sounds like there may be a few things weighing on your mind right now.
