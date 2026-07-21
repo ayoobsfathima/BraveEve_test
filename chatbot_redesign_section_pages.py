@@ -466,6 +466,15 @@ st.markdown(
         overflow-anchor: none !important;
     }}
 
+    /* Animated tick pop on the section checklists, size unchanged */
+    [data-testid="stCheckbox"] svg {{
+        transition: transform 0.15s ease-in-out;
+    }}
+
+    [data-testid="stCheckbox"]:has(input:checked) svg {{
+        transform: scale(1.3);
+    }}
+
     /* Increase general text size */
     p, li, label, div {{
         font-size: 18px !important;
@@ -474,6 +483,130 @@ st.markdown(
     /* Question text */
     .stMarkdown {{
         font-size: 18px !important;
+    }}
+
+    /* Checklist checkboxes - bigger target + a pleasant check animation */
+    [data-testid="stCheckbox"] label {{
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+    }}
+
+    [data-testid="stCheckbox"] label > div:not([data-testid="stWidgetLabel"]) {{
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        border-radius: 8px !important;
+        border: 2px solid #D96C97 !important;
+        transition: transform 0.15s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }}
+
+    [data-testid="stCheckbox"] label > div:not([data-testid="stWidgetLabel"]) svg {{
+        width: 16px;
+        height: 16px;
+    }}
+
+    [data-testid="stCheckbox"] label:hover > div:not([data-testid="stWidgetLabel"]) {{
+        border-color: #B04A72 !important;
+        box-shadow: 0 0 0 4px rgba(217, 108, 151, 0.15);
+    }}
+
+    [data-testid="stCheckbox"] label[data-selected="true"] > div:not([data-testid="stWidgetLabel"]) {{
+        animation: checkPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }}
+
+    @keyframes checkPop {{
+        0%   {{ transform: scale(0.55); }}
+        60%  {{ transform: scale(1.18); }}
+        100% {{ transform: scale(1); }}
+    }}
+
+    [data-testid="stCheckbox"] label > div:not([data-testid="stWidgetLabel"]) svg polyline {{
+        stroke-dasharray: 20;
+        stroke-dashoffset: 20;
+    }}
+
+    [data-testid="stCheckbox"] label[data-selected="true"] > div:not([data-testid="stWidgetLabel"]) svg polyline {{
+        animation: drawCheck 0.22s ease-out 0.08s forwards;
+    }}
+
+    @keyframes drawCheck {{
+        to {{ stroke-dashoffset: 0; }}
+    }}
+
+    /* Checklist item card - hint icon floats in its rounded top-right corner
+       instead of taking up a text column */
+    [data-testid="stVerticalBlock"]:has([data-testid="stPopover"]) {{
+        position: relative !important;
+    }}
+
+    [data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) {{
+        flex-wrap: nowrap !important;
+        align-items: flex-start !important;
+        gap: 0 !important;
+        column-gap: 0 !important;
+    }}
+
+    [data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > [data-testid="stColumn"]:first-child {{
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        padding-right: 36px !important;
+    }}
+
+    [data-testid="stHorizontalBlock"]:has([data-testid="stPopover"]) > [data-testid="stColumn"]:last-child {{
+        flex: 0 0 0 !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }}
+
+    [data-testid="stPopover"] {{
+        position: absolute !important;
+        top: 8px !important;
+        right: 8px !important;
+        z-index: 2;
+    }}
+
+    /* Hint ("what someone might say") icon - a filled lightbulb glyph with a
+       soft resting glow so it visibly reads as tappable */
+    [data-testid="stPopover"] [data-testid="stPopoverButton"] {{
+        background-color: rgba(255, 255, 255, 0.85) !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23D96C97'%3E%3Cpath d='M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z'/%3E%3C/svg%3E") !important;
+        background-repeat: no-repeat !important;
+        background-position: center !important;
+        background-size: 17px 17px !important;
+        border: none !important;
+        min-height: unset !important;
+        width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        box-shadow: 0 0 0 5px rgba(217, 108, 151, 0.10), 0 2px 6px rgba(217, 108, 151, 0.30) !important;
+        transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }}
+
+    [data-testid="stPopover"] [data-testid="stPopoverButton"]:hover {{
+        background-color: #FFFFFF !important;
+        box-shadow: 0 0 0 7px rgba(217, 108, 151, 0.16), 0 3px 10px rgba(217, 108, 151, 0.40) !important;
+        transform: scale(1.05);
+    }}
+
+    /* the emoji text + chevron are replaced by the glyph above */
+    [data-testid="stPopover"] [data-testid="stPopoverButton"] p,
+    [data-testid="stPopover"] [data-testid="stPopoverButton"] [data-testid="stIconMaterial"] {{
+        display: none !important;
+    }}
+
+    /* Affirmation text below a checked item - fade + slide in */
+    [data-testid="stAlert"] {{
+        animation: affirmationFadeIn 0.45s ease-out;
+    }}
+
+    @keyframes affirmationFadeIn {{
+        0%   {{ opacity: 0; transform: translateX(-16px); }}
+        100% {{ opacity: 1; transform: translateX(0); }}
     }}
 
     /* Radio buttons */
