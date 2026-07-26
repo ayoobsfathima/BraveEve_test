@@ -11,6 +11,7 @@ import psycopg2
 from psycopg2 import pool as pg_pool
 from datetime import datetime
 from streamlit_scroll_to_top import scroll_to_here
+from sentence_transformers import SentenceTransformer
 DEBUG_MODE = True 
 
 @st.cache_resource
@@ -105,6 +106,81 @@ QUESTION_MASCOTS = {
     "Relationship with the sacred": "BraveEve_proud",
     "Ritual or dietary needs": "BraveEve_proud"
 }
+
+HIGH_RISK_PHRASES = [
+
+    # Sleep
+    "cannot sleep",
+    "can't sleep",
+    "sleep not coming",
+    "unable to sleep",
+    "barely get any rest",
+    "whole night awake",
+    "not sleeping properly",
+    "sleep problem",
+
+    # Mental distress
+    "not been okay",
+    "have not been okay",
+    "nothing feels enjoyable",
+    "do not enjoy anything",
+    "no hope",
+    "cry every day",
+    "cry everyday",
+    "crying every day",
+    "i feel broken",
+    "i feel empty",
+    "do not feel like myself",
+
+    # Eating
+    "don't feel like eating",
+    "dont feel like eating",
+    "not eating much",
+    "lost appetite",
+
+    # Pain
+    "whole body hurts",
+    "pain every day",
+    "pain everyday",
+    "severe pain",
+    "constant pain",
+
+    # Fatigue
+    "tired all the time",
+    "always tired",
+    "no energy",
+    "completely exhausted",
+
+    # Smoking / Alcohol
+    "smoking every day",
+    "still smoking",
+    "drink alcohol daily",
+
+    # Anxiety
+    "keep worrying",
+    "worry every night",
+    "always worried",
+    "constant worry",
+
+    # Financial / Social
+    "cannot go to work",
+    "struggling financially",
+    "cannot afford treatment",
+    "miss appointments",
+
+    # Transport
+    "no transport",
+    "cannot travel to hospital",
+
+    # Relationships
+    "family not supporting",
+    "feeling lonely",
+
+    # Worthlessness
+    "feel like a burden",
+    "worthless"
+]
+
 
 # =========================================================
 # SECTION INTRO HEADERS (shown at the top of each section page,
@@ -870,26 +946,30 @@ def personalize(text):
     )
     
 # =========================================================
-# LOAD NLP MODEL
+# LOAD NLP MODEL AND ENCODER
 # =========================================================
 
 @st.cache_resource
-def load_model():
+def load_models():
 
-    return joblib.load("sentiment_model.pkl")
+    classifier = joblib.load("sentiment_model.pkl")
+
+    encoder = SentenceTransformer(
+        "sentence-transformers/all-MiniLM-L6-v2"
+    )
+
+    return classifier, encoder
+
 
 try:
 
-    model = load_model()
+    classifier, encoder = load_models()
 
 except Exception as e:
 
-    st.error(
-        f"Model could not be loaded: {e}"
-    )
-
+    st.error(f"Models could not be loaded: {e}")
     st.stop()
-
+    
 # =========================================================
 # TEXT CLEANING FUNCTION
 # =========================================================
@@ -1853,9 +1933,21 @@ elif st.session_state.step == 7:
 
                 cleaned = clean_text(note_text)
 
-                prediction = model.predict(
-                    [cleaned]
-                )[0]
+                text_lower = cleaned.lower()
+
+                # Clinical override
+                if (
+                    ("mind" in text_lower and "calm" in text_lower and ("never" in text_lower or "not" in text_lower or "cannot" in text_lower))
+                    or any(p in text_lower for p in HIGH_RISK_PHRASES)
+                ):
+
+                    prediction = "YES"
+
+                else:
+
+                    embedding = encoder.encode([cleaned])
+
+                    prediction = classifier.predict(embedding)[0]
 
             else:
 
