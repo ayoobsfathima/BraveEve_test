@@ -228,24 +228,21 @@ NOTES_RESPONSE_YES = [
 
     "Thank you for being so open with me, [Name]. I can hear how "
     "incredibly painful and chaotic things feel right now. Let's take a "
-    "deep breath together — we will go entirely at your pace.",
+    "deep breath together.",
 
     "It sounds like you are being pushed to your absolute limit right "
     "now, [Name], and I am so incredibly sorry. No one should have to "
     "bear this kind of distress alone.",
 
     "I can hear how entirely drained and overwhelmed you feel, [Name]. "
-    "I'm so sorry things are this hard. Let's see if we can find even "
-    "just one or two small areas where we can bring you a little relief.",
+    "I'm so sorry things are this hard.",
 
     "I am listening closely, [Name], and I can hear just how heavy, raw, "
     "and overwhelming this moment is for you. I'm so sorry you are going "
     "through this, but I'm glad you're telling me.",
 
     "Everything you're describing sounds incredibly heavy and "
-    "overwhelming, [Name]. I'm so sorry it's reached this point. Let's "
-    "look at this list together specifically to see how we can lift some "
-    "of this weight off your shoulders."
+    "overwhelming, [Name]. I'm so sorry it's reached this point."
 
 ]
 
