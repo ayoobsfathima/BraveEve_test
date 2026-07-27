@@ -260,8 +260,6 @@ NOTES_RESPONSE_NO = [
     "and that things are going smoothly for you today.",
 
     "I'm so happy you're feeling well and steady right now, [Name]. "
-    "Let's do a quick check on these items just to ensure we keep things "
-    "running this smoothly for you.",
 
     "It is so refreshing to hear that you're doing well and feeling "
     "peaceful today, [Name]. I'm truly glad to know that things are "
@@ -270,9 +268,7 @@ NOTES_RESPONSE_NO = [
     "I love hearing that, [Name]! It sounds like you're in a really "
     "steady place today, which is fantastic news.",
 
-    "I'm so glad to hear you're doing well, [Name]. Even when things are "
-    "steady, we like to double-check the little things just to make sure "
-    "nothing is quietly pulling your energy away.",
+    "I'm so glad to hear you're doing well, [Name]."
 
     "Thank you for sharing that, [Name] — I'm truly happy to hear that "
     "you're feeling well and that life feels manageable and stable for "
